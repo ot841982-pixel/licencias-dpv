@@ -139,6 +139,9 @@ app.whenReady().then(async () => {
     const splash = createSplashWindow();
     const sendStatus = (msg) => { log.info(msg); splash.webContents.send('status', msg); };
 
+    await splash.webContents.executeJavaScript('new Promise(r => setTimeout(r, 300))').catch(() => {});
+    await new Promise(r => splash.webContents.isLoading() ? splash.webContents.once('did-finish-load', r) : r());
+
     try {
       sendStatus('Verificando Docker...');
       if (!isDockerAvailable()) {
@@ -150,7 +153,7 @@ app.whenReady().then(async () => {
         return;
       }
       sendStatus('Iniciando servicios (primera vez puede tardar unos minutos)...');
-      await runDockerCompose(['up', '-d', '--build']);
+      await runDockerCompose(['up', '-d']);
       sendStatus('Esperando que la aplicación esté lista...');
       await waitForApp('http://localhost', MAX_WAIT_MS);
       mainWindow = createMainWindow('http://localhost');
