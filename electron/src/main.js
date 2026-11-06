@@ -49,11 +49,17 @@ function getServerUrl() {
 }
 
 // ─── Utilidades Docker (solo modo server) ─────────────────────────────────────
-function isDockerAvailable() {
+function isDockerRunning() {
   try {
-    execSync('docker info', { stdio: 'ignore', timeout: 5000 });
-    return true;
-  } catch { return false; }
+    execSync('docker info', { stdio: 'ignore', timeout: 8000 });
+    return { ok: true };
+  } catch (e) {
+    const msg = (e.message || '').toLowerCase();
+    if (msg.includes('timeout') || msg.includes('pipe') || msg.includes('connect')) {
+      return { ok: false, notRunning: true };
+    }
+    return { ok: false, notInstalled: true };
+  }
 }
 
 function runDockerCompose(args) {
@@ -143,13 +149,20 @@ app.whenReady().then(async () => {
     await new Promise(r => splash.webContents.isLoading() ? splash.webContents.once('did-finish-load', r) : r());
 
     try {
-      sendStatus('Verificando Docker...');
-      if (!isDockerAvailable()) {
-        splash.webContents.send('error',
-          'Docker no está instalado o no está corriendo.\n\n' +
-          'Instalá Docker Desktop desde:\nhttps://www.docker.com/products/docker-desktop\n\n' +
-          'Luego reiniciá la aplicación.'
-        );
+      sendStatus('Verificando Docker... (puede tardar hasta 30 segundos)');
+      const docker = isDockerRunning();
+      if (!docker.ok) {
+        if (docker.notRunning) {
+          splash.webContents.send('error',
+            'Docker está instalado pero no está corriendo.\n\n' +
+            'Abrí Docker Desktop, esperá que termine de iniciar (ícono en la barra de tareas) y luego hacé clic en Reintentar.'
+          );
+        } else {
+          splash.webContents.send('error',
+            'Docker Desktop no está instalado.\n\n' +
+            'Descargalo e instalalo desde docker.com, luego reiniciá esta aplicación.'
+          );
+        }
         return;
       }
       sendStatus('Iniciando servicios (primera vez puede tardar unos minutos)...');
