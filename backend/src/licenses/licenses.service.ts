@@ -156,7 +156,7 @@ export class LicensesService {
 
     // Licencias del año (no rechazadas)
     const licenses = await this.licenseModel
-      .find({ empleado: new Types.ObjectId(empleadoId), fechaInicio: { $lte: end }, fechaFin: { $gte: start }, estado: { $ne: 'rechazada' } })
+      .find({ empleado: new Types.ObjectId(empleadoId), fechaInicio: { $lte: end }, fechaFin: { $gte: start }, estado: { $ne: 'rechazada' }, deletedAt: null })
       .populate('tipoLicencia', 'nombre categoria color')
       .exec();
 
@@ -234,7 +234,7 @@ export class LicensesService {
     const end   = new Date(anio, 11, 31, 23, 59, 59);
 
     const licenses = await this.licenseModel
-      .find({ empleado: new Types.ObjectId(empleadoId), fechaInicio: { $lte: end }, fechaFin: { $gte: start }, estado: { $ne: 'rechazada' } })
+      .find({ empleado: new Types.ObjectId(empleadoId), fechaInicio: { $lte: end }, fechaFin: { $gte: start }, estado: { $ne: 'rechazada' }, deletedAt: null })
       .populate('tipoLicencia', 'nombre color')
       .exec();
 

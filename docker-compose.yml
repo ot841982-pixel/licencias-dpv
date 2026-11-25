@@ -20,12 +20,14 @@ services:
         condition: service_healthy
     environment:
       MONGODB_URI: mongodb://mongodb:27017/licencias-dpv
-      JWT_SECRET: ${JWT_SECRET:-licencias_dpv_cambiar_en_produccion}
+      JWT_SECRET: ${JWT_SECRET:-}
+      LICENSE_SECRET: ${LICENSE_SECRET:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       JWT_EXPIRES_IN: 8h
       PORT: 3001
       NODE_ENV: production
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3001/api/license-types"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/api/admin/status"]
       interval: 15s
       timeout: 5s
       retries: 3

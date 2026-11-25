@@ -4,7 +4,8 @@ import { Model } from 'mongoose';
 import { createHmac } from 'crypto';
 import { AppConfig, AppConfigDocument } from './schemas/app-config.schema';
 
-const SECRET_BASE = process.env.LICENSE_SECRET || 'DPV-Licencias-XK92';
+import { getLicenseSecret } from '../common/config/secrets';
+
 const CONFIG_KEY = 'licencia';
 
 @Injectable()
@@ -40,8 +41,9 @@ export class AppConfigService implements OnModuleInit {
     // Número de semana ISO
     const startOfYear = new Date(year, 0, 1);
     const week = Math.ceil(((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7);
-    const payload = `${SECRET_BASE}:${year}:${week}`;
-    return createHmac('sha256', SECRET_BASE).update(payload).digest('hex').substring(0, 12).toUpperCase();
+    const secret = getLicenseSecret();
+    const payload = `${secret}:${year}:${week}`;
+    return createHmac('sha256', secret).update(payload).digest('hex').substring(0, 12).toUpperCase();
   }
 
   async unlock(clave: string, dias = 15): Promise<boolean> {

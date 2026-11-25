@@ -10,6 +10,7 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { UsersModule } from '../users/users.module';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { getJwtSecret } from '../common/config/secrets';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET', 'fallback_secret'),
+        secret: getJwtSecret(),
         signOptions: { expiresIn: configService.get<string>('JWT_EXPIRES_IN', '8h') },
       }),
       inject: [ConfigService],

@@ -75,12 +75,13 @@ export class UsersService {
   async seedAdmin(): Promise<void> {
     const admin = await this.userModel.findOne({ username: 'admin' });
     if (!admin) {
-      const hash = await bcrypt.hash('Admin1234!', 10);
+      const initialPassword = process.env.ADMIN_PASSWORD?.trim() || 'Admin1234!';
+      const hash = await bcrypt.hash(initialPassword, 10);
       await this.userModel.create({
         username: 'admin', password: hash, fullName: 'Administrador',
         email: 'admin@licencias.local', role: 'admin', isActive: true, deletedAt: null,
       });
-      console.log('✅ Usuario admin creado: admin / Admin1234!');
+      console.log('✅ Usuario admin creado. Cambia la contraseña inicial después del primer ingreso.');
     }
   }
 }

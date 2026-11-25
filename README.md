@@ -24,7 +24,7 @@ npm run dev
 
 Abrir: http://localhost:5173
 
-**Credenciales por defecto:** `admin / Admin1234!`
+**Credenciales iniciales:** usuario `admin`. La contraseña es el valor de `ADMIN_PASSWORD` (si no se define, `Admin1234!`). Cámbiala después del primer ingreso.
 
 ## Módulos
 
@@ -54,7 +54,9 @@ Abrir: http://localhost:5173
 
 ```
 MONGODB_URI=mongodb://localhost:27017/licencias-dpv
-JWT_SECRET=cambiar_en_produccion
+JWT_SECRET=cambiar_en_produccion   # si falta, se genera uno aleatorio por reinicio
+LICENSE_SECRET=cambiar_por_secreto_propio
+ADMIN_PASSWORD=contraseña_inicial_del_admin
 JWT_EXPIRES_IN=8h
 PORT=3001
 ```

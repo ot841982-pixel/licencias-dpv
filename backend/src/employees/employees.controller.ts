@@ -29,6 +29,31 @@ export class EmployeesController {
     return this.employeesService.findAll(query);
   }
 
+  // Las rutas estáticas (imports, import/template) deben ir antes de ':id'
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @Get('imports')
+  getImportReports() {
+    return this.employeesService.getImportReports();
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @Get('imports/:id')
+  getImportReport(@Param('id') id: string) {
+    return this.employeesService.getImportReport(id);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @Get('import/template')
+  downloadTemplate(@Res() res: Response) {
+    const buffer = this.employeesService.generateTemplate();
+    res.setHeader('Content-Disposition', 'attachment; filename=plantilla_empleados.xlsx');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(buffer);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.employeesService.findById(id);
@@ -54,29 +79,5 @@ export class EmployeesController {
   @UseInterceptors(FileInterceptor('file'))
   async importExcel(@UploadedFile() file: Express.Multer.File, @CurrentUser() user: any) {
     return this.employeesService.importFromBuffer(file.buffer, file.originalname, user._id.toString(), user.fullName);
-  }
-
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
-  @Get('imports')
-  getImportReports() {
-    return this.employeesService.getImportReports();
-  }
-
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
-  @Get('imports/:id')
-  getImportReport(@Param('id') id: string) {
-    return this.employeesService.getImportReport(id);
-  }
-
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
-  @Get('import/template')
-  downloadTemplate(@Res() res: Response) {
-    const buffer = this.employeesService.generateTemplate();
-    res.setHeader('Content-Disposition', 'attachment; filename=plantilla_empleados.xlsx');
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.send(buffer);
   }
 }
